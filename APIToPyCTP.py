@@ -49,8 +49,8 @@ def structtrue(filename):
     
 
 codetree = {}
-codetree.update(structtrue('./v6.3.6_20160606_api_tradeapi_linux64/ThostFtdcUserApiDataType.h'))
-codetree.update(structtrue('./v6.3.6_20160606_api_tradeapi_linux64/ThostFtdcUserApiStruct.h'))
+codetree.update(structtrue('./api_tradeapi_linux64/ThostFtdcUserApiDataType.h'))
+codetree.update(structtrue('./api_tradeapi_linux64/ThostFtdcUserApiStruct.h'))
 
 
 #头文件
