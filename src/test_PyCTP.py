@@ -7,7 +7,7 @@ Created on Sat Jul 30 17:19:21 2016
 
 import sys
 import threading
-from api.ctp_api_windows import PyCTP
+import PyCTP
 
 class PyCTP_Market_API(PyCTP.CThostFtdcMdApi):
 
