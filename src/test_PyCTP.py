@@ -7,7 +7,7 @@ Created on Sat Jul 30 17:19:21 2016
 
 import sys
 import threading
-import PyCTP
+from api.ctp_api_windows import PyCTP
 
 class PyCTP_Market_API(PyCTP.CThostFtdcMdApi):
 
@@ -412,8 +412,7 @@ class PyCTP_Trader_API(PyCTP.CThostFtdcTraderApi):
             else:
                 return -4
         return ret
-        
-        
+
     def OnFrontConnected(self):
         """ 当客户端与交易后台建立起通信连接时（还未登录前），该方法被调用。 """
         self.__rsp_Connect['event'].set()
@@ -548,10 +547,49 @@ class PyCTP_Trader_API(PyCTP.CThostFtdcTraderApi):
                 self.__rsp_OrderInsert.update(RspInfo)
                 self.__rsp_OrderInsert['event'].set()
                 
-    def OnRtnOrder(self, Order):
-        print(Order)
+    def OnRtnOrder(self,*args,**kwargs):
+        print("------> in OnRtnOrder")
+        print(args)
+        #print("StatusMsg:", str(args[0]['StatusMsg'], encoding='gbk'))
+        if args[0].get('StatusMsg'):
+            print("StatusMsg:", str(args[0]['StatusMsg'], encoding='gbk'))
+        #print(kwargs)
+#         aaa = '''
+#         ({'TraderID': b'01110080', 'StatusMsg': b'\xd2\xd1\xb3\xb7\xb5\xa5\xb1\xa8\xb5\xa5\xb1\xbb\xbe\xdc\xbe\xf8CZCE:\xb3\xf6\xb4\xed: \xcf\xd6\xd4\xda\xb2\xbb\xca\xc7\xbd\xbb\xd2\xd7\xca\xb1\xbc\xe4', 'O
+# rderSysID': b'', 'BrokerOrderSeq': 53985, 'OrderLocalID': b'       41712', 'UpdateTime': b'', 'UserForceClose': 0, 'BrokerID': b'6000', 'CombOffsetFlag': b'1', 'VolumeTotal': 100, 'OrderStatus': b'5
+# ', 'OrderRef': b'333', 'ExchangeID': b'CZCE', 'ZCETotalTradedVolume': 0, 'TradingDay': b'20181123', 'MinVolume': 0, 'ClearingPartID': b'', 'Direction': b'0', 'ActiveTraderID': b'', 'InstallID': 1, '
+# LimitPrice': 307.0, 'InsertTime': b'16:32:55', 'SessionID': 1399259687, 'ActiveTime': b'', 'OrderSubmitStatus': b'4', 'CombHedgeFlag': b'1', 'ParticipantID': b'0111', 'InvestorID': b'00000123', 'Set
+# tlementID': 1, 'SequenceNo': 0, 'VolumeCondition': b'1', 'SuspendTime': b'', 'OrderType': b'0', 'TimeCondition': b'3', 'CancelTime': b'', 'IsSwapOrder': 0, 'VolumeTotalOriginal': 100, 'InsertDate':
+# b'20181123', 'RequestID': 485, 'NotifySequence': 1, 'IsAutoSuspend': 0, 'GTDDate': b'', 'UserProductInfo': b'Q7V2 757', 'BusinessUnit': b'01110080', 'InstrumentID': b'CF901C14800', 'VolumeTraded': 0
+# , 'StopPrice': 0.0, 'OrderPriceType': b'2', 'UserID': b'00000123', 'RelativeOrderSysID': b'', 'OrderSource': b'0', 'ActiveUserID': b'', 'ForceCloseReason': b'0', 'ExchangeInstID': b'CF901C14800', 'C
+# lientID': b'34427278', 'ContingentCondition': b'1', 'FrontID': 1, 'AccountID': b'', 'BranchID': b'', 'CurrencyID': b'', 'InvestUnitID': b'', 'IPAddress': b'', 'MacAddress': b''},)
+#
+#         '''
         pass
-    
+
+    def OnRtnTrade(self,*args,**kwargs):
+        print("------> in OnRtnTrade")
+        print(args)
+        if args[0].get('StatusMsg'):
+            print("StatusMsg:", str(args[0]['StatusMsg'], encoding='gbk'))
+
+    def OnRtnInstrumentStatus(self,*args,**kwargs):
+        print("------> in OnRtnInstrumentStatus")
+        print(args)
+        ####
+        ####({'EnterReason': b'1', 'ExchangeInstID': b'TT', 'ExchangeID': b'CFFEX', 'InstrumentID': b'TT',
+        ####  'SettlementGroupID': b'SG01', 'InstrumentStatus': b'6', 'TradingSegmentSN': 10, 'EnterTime': b'15:15:00
+        ####                                                                                               '},)
+
+            #print(kwargs)
+        pass
+
+    def OnErrRtnOrderInsert(self,*args,**kwargs):
+        print("------> in OnErrRtnOrderInsert")
+        print(args)
+        #print(kwargs)
+        pass
+
     def OnErrRtnOrderAction(self, OrderAction, RspInfo):
         """ 报单操作错误回报 """
         print('OnErrRtnOrderAction:', OrderAction, RspInfo)
@@ -570,22 +608,22 @@ class PyCTP_Trader(PyCTP_Trader_API):
         print('OnRtnExecOrder:', ExecOrder)
         pass
 
-class PyCTP_Market(PyCTP_Market_API):
-    data = []
-    def OnRtnDepthMarketData(self, DepthMarketData):
-        import datetime
-        tick = dict(InstrumentID=str(DepthMarketData['InstrumentID'], 'gb2312')
-                    , time=datetime.datetime.strptime(str(DepthMarketData['ActionDay']+DepthMarketData['UpdateTime'], 'gb2312'), '%Y%m%d%H:%M:%S').replace(microsecond=DepthMarketData['UpdateMillisec']*1000)
-                    , last=DepthMarketData['LastPrice']
-                    , volume=DepthMarketData['Volume']
-                    , amount=DepthMarketData['Turnover']
-                    , position=DepthMarketData['OpenInterest']
-                    , ask1=DepthMarketData['AskPrice1']
-                    , bid1=DepthMarketData['BidPrice1']
-                    , asize1=DepthMarketData['AskVolume1']
-                    , bsize1=DepthMarketData['BidVolume1'])
-        self.data.append(tick)
-        print(tick, '\n')
+# class PyCTP_Market(PyCTP_Market_API):
+#     data = []
+#     def OnRtnDepthMarketData(self, DepthMarketData):
+#         import datetime
+#         tick = dict(InstrumentID=str(DepthMarketData['InstrumentID'], 'gb2312')
+#                     , time=datetime.datetime.strptime(str(DepthMarketData['ActionDay']+DepthMarketData['UpdateTime'], 'gb2312'), '%Y%m%d%H:%M:%S').replace(microsecond=DepthMarketData['UpdateMillisec']*1000)
+#                     , last=DepthMarketData['LastPrice']
+#                     , volume=DepthMarketData['Volume']
+#                     , amount=DepthMarketData['Turnover']
+#                     , position=DepthMarketData['OpenInterest']
+#                     , ask1=DepthMarketData['AskPrice1']
+#                     , bid1=DepthMarketData['BidPrice1']
+#                     , asize1=DepthMarketData['AskVolume1']
+#                     , bsize1=DepthMarketData['BidVolume1'])
+#         self.data.append(tick)
+#         print(tick, '\n')
     
 def __main__():
     import os
